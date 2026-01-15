@@ -27,7 +27,7 @@ def recommend_outfit(request):
     
     recommendations = OutfitRecommendation.objects.filter(user=request.user)
 
-    return render(request, 'recommendations/recommend.html', {
+    return render(request, 'user/recommend.html', {
         'recommendations': recommendations,
         'occasions': Occasion.objects.all(),
         'seasons': Season.objects.all(),

@@ -1,0 +1,14 @@
+<h2>Checkout</h2>
+
+<p><b>Accessory:</b> {{ accessory.name }}</p>
+<p><b>Quantity:</b> {{ quantity }}</p>
+<p><b>Total:</b> ₹{{ total }}</p>
+
+<form method="post" action="{% url 'place_order' %}">
+    {% csrf_token %}
+
+    <label>Shipping Address</label><br>
+    <textarea name="address" required></textarea><br><br>
+
+    <button type="submit">Place Order</button>
+</form>

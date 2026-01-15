@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supplier Home</title>
+</head>
+<body>
+
+<h2>Supplier Dashboard</h2>
+
+<ul>
+    <li>
+        <a href="{% url 'manage_accessories' %}">
+            Manage Accessories
+        </a>
+    </li>
+
+    <li>
+        <a href="{% url 'add_accessories' %}">
+            Add Accessories
+        </a>
+    </li>
+
+    <li>
+        <a href="{% url 'supplier_orders' %}">
+            View Orders
+        </a>
+    </li>
+
+    <li>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </li>
+</ul>
+
+</body>
+</html>

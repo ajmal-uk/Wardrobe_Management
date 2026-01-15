@@ -1,0 +1,20 @@
+<h2>Order Bill</h2>
+
+<p><b>Order ID:</b> {{ order.id }}</p>
+<p><b>Date:</b> {{ order.order_date }}</p>
+<p><b>Status:</b> {{ order.status }}</p>
+
+<hr>
+
+{% for item in order.items.all %}
+<p>
+    {{ item.accessory.name }} × {{ item.quantity }} <br>
+    Price: ₹{{ item.price }} <br>
+    Subtotal: ₹{{ item.price|floatformat:2 }}
+</p>
+{% endfor %}
+
+<hr>
+<h3>Total: ₹{{ order.total_amount }}</h3>
+
+<a href="{% url 'shop_accessories' %}">Continue Shopping</a>

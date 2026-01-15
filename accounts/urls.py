@@ -8,7 +8,9 @@ urlpatterns = [
     path('register/', user_register, name='user_register'),
     path('logout/', user_logout, name='user_logout'),
     path('register/supplier',supplier_register,name='supplier_register'),
+    path('Supplier/home',supplier_home,name='supplier_home'),
     path('user/home/', user_home, name='user_home'),
+    
 
     
 ]

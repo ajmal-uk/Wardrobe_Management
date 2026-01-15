@@ -16,5 +16,7 @@ class Accessory(models.Model):
     stock = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
+    image = models.ImageField(upload_to='accessories/', null=True, blank=True)
+
     def __str__(self):
         return self.name

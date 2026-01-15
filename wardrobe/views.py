@@ -12,7 +12,7 @@ from .models import WardrobeItem
 @role_required('user')
 def wardrobe_home(request):
     items = WardrobeItem.objects.filter(user=request.user)
-    return render(request, 'wardrobe/wardrobe_home.html', {'items': items})
+    return render(request, 'user/manage_wardrobe.html', {'items': items})
 
 
 @role_required('user')
@@ -33,7 +33,7 @@ def add_wardrobe_item(request):
         )
         return redirect('wardrobe_home')
 
-    return render(request, 'wardrobe/add_item.html', {
+    return render(request, 'user/add_wardrobe.html', {
         'categories': categories,
         'occasions': occasions,
         'seasons': seasons
@@ -68,7 +68,7 @@ def add_wardrobe(request):
         )
         return redirect('wardrobe_home')
 
-    return render(request, 'wardrobe/add_wardrobe.html', {
+    return render(request, 'user/add_wardrobe.html', {
         'categories': categories,
         'occasions': occasions,
         'seasons': seasons
@@ -87,7 +87,7 @@ def view_clothes(request):
     if category_id:
         items = items.filter(category_id=category_id)
 
-    return render(request, 'wardrobe/view_clothes.html', {
+    return render(request, 'user/view_clothes.html', {
         'items': items,
         'categories': categories
     })
@@ -108,7 +108,7 @@ def send_to_laundry(request, item_id):
         user=request.user
     )
 
-    # Reset laundry state
+ 
     item.wear_count = 0
     item.clean_status = True
     item.save()

@@ -5,12 +5,8 @@ from accounts.decorators import role_required
 
 
 def index(request):
-    return render(request, 'accounts/index.html')
+    return render(request,'base/index.html')
 
-def index(request):
-    if request.user.is_authenticated:
-        return redirect('user_home')
-    return render(request, 'accounts/index.html')
 
 
 #___________USER__________#
@@ -19,7 +15,7 @@ def index(request):
 @role_required('user')
 
 def user_home(request):
-    return render(request, 'accounts/user_home.html')
+    return render(request, 'user/user_home.html')
 
 def user_login(request):
     if request.method == 'POST':
@@ -33,15 +29,15 @@ def user_login(request):
             if user.role == 'user':
                 return redirect('user_home')
             elif user.role == 'supplier':
-                return redirect('/accessories/manage/')
+                return redirect('supplier_home')
             else:
                 return redirect('admin_dashboard')
 
-        return render(request, 'accounts/login.html', {
+        return render(request, 'auth/login.html', {
             'error': 'Invalid username or password'
         })
 
-    return render(request, 'accounts/login.html')
+    return render(request, 'auth/login.html')
 
 
 def user_logout(request):
@@ -63,12 +59,12 @@ def user_register(request):
         password2 = request.POST.get('password2')
 
         if password1 != password2:
-            return render(request, 'accounts/register.html', {
+            return render(request, 'auth/register.html', {
                 'error': 'Passwords do not match'
             })
 
         if CustomUser.objects.filter(username=username).exists():
-            return render(request, 'accounts/register.html', {
+            return render(request, 'auth/register.html', {
                 'error': 'Username already exists'
             })
 
@@ -81,7 +77,7 @@ def user_register(request):
 
         return redirect('user_login')
 
-    return render(request, 'accounts/register.html')
+    return render(request, 'auth/register.html')
 
 from accounts.decorators import role_required
 from django.contrib.auth import get_user_model
@@ -101,12 +97,12 @@ def supplier_register(request):
         password2 = request.POST.get('password2')
 
         if password1 != password2:
-            return render(request, 'accounts/supplier_register.html', {
+            return render(request, 'auth/supplier_register.html', {
                 'error': 'Passwords do not match'
             })
 
         if CustomUser.objects.filter(username=username).exists():
-            return render(request, 'accounts/supplier_register.html', {
+            return render(request, 'auth/supplier_register.html', {
                 'error': 'Username already exists'
             })
 
@@ -119,8 +115,11 @@ def supplier_register(request):
 
         return redirect('user_login')
 
-    return render(request, 'accounts/supplier_register.html')
+    return render(request, 'auth/supplier_register.html')
 
+def supplier_home(request):
+    return render(request, 'supplier/supplier_home.html')
+ 
 
 ########_________ADMIN_______########
 
@@ -133,4 +132,4 @@ def admin_dashboard(request):
         'total_orders': Order.objects.count(),
         'total_recommendations': OutfitRecommendation.objects.count(),
     }
-    return render(request, 'accounts/admin_dashboard.html', context)
+    return render(request, 'admin/admin_dashboard.html', context)

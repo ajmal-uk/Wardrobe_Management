@@ -1,0 +1,48 @@
+<h2>Shop Accessories</h2>
+<form method="get">
+    <input type="text" name="q" placeholder="Search accessories"
+           value="{{ request.GET.q }}">
+
+    <select name="category">
+        <option value="">-- All Categories --</option>
+        {% for c in categories %}
+            <option value="{{ c.name }}"
+                {% if request.GET.category == c.name %}selected{% endif %}>
+                {{ c.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Search</button>
+</form>
+
+<hr>
+
+{% for a in accessories %}
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; width:300px;">
+
+    {% if a.image %}
+        <img src="{{ a.image.url }}" width="120"><br><br>
+    {% endif %}
+
+    <b>{{ a.name }}</b><br>
+    Category: {{ a.category }}<br>
+    Price: ₹{{ a.price }}<br>
+    Stock: {{ a.stock }}<br>
+
+    {% if a.stock > 0 %}
+        <form method="post" action="{% url 'checkout' %}">
+    {% csrf_token %}
+    <input type="hidden" name="accessory_id" value="{{ a.id }}">
+    <input type="number" name="quantity" value="1" min="1" max="{{ a.stock }}">
+    <button type="submit">Buy</button>
+</form>
+    {% else %}
+        <p style="color:red;">Out of stock</p>
+    {% endif %}
+
+</div>
+{% empty %}
+<p>No accessories available.</p>
+{% endfor %}
+<br>
