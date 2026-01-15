@@ -6,11 +6,18 @@
 
 <hr>
 
+<h3>Shipping Address</h3>
+<p>{{ order.address }}</p>
+
+<hr>
+
 {% for item in order.items.all %}
 <p>
     {{ item.accessory.name }} × {{ item.quantity }} <br>
     Price: ₹{{ item.price }} <br>
     Subtotal: ₹{{ item.price|floatformat:2 }}
+    <p><b>Payment Mode:</b> {{ order.get_payment_mode_display }}</p>
+
 </p>
 {% endfor %}
 

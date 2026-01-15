@@ -6,6 +6,30 @@ from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.shortcuts import render
 
+def user_orders(request):
+    status = request.GET.get('status')
+
+    orders = Order.objects.filter(user=request.user)
+
+    if status:
+        orders = orders.filter(status=status)
+
+    orders = orders.order_by('-order_date')
+
+    return render(request, 'user/user_orders.html', {
+        'orders': orders,
+        'selected_status': status
+    })
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == 'ordered':
+        order.status = 'cancelled'
+        order.save()
+
+    return redirect('user_orders')
 
 
 @login_required
@@ -42,6 +66,7 @@ def place_order(request):
    
     return redirect(request.META.get('HTTP_REFERER', 'shop_accessories'))
 
+@login_required
 def checkout(request):
     if request.method == 'POST':
         accessory = get_object_or_404(
@@ -66,9 +91,12 @@ def checkout(request):
             'total': total
         })
 
+@login_required
 def place_order(request):
-    data = request.session.get('order_data')
+    if request.method != 'POST':
+        return redirect('shop_accessories')
 
+    data = request.session.get('order_data')
     if not data:
         return redirect('shop_accessories')
 
@@ -78,8 +106,13 @@ def place_order(request):
     if quantity > accessory.stock:
         return redirect('shop_accessories')
 
+    address = request.POST.get('address')
+    payment_mode = request.POST.get('payment_mode')
+
     order = Order.objects.create(
         user=request.user,
+        address=address,
+        payment_mode=payment_mode,
         total_amount=accessory.price * quantity
     )
 

@@ -10,35 +10,31 @@
   {% csrf_token %}
 
   Item Type:
-  <input type="text" name="item_type"><br><br>
+  <input type="text" name="item_type" required><br><br>
 
   Category:
-  <select name="category">
+  <select name="category" required>
     {% for c in categories %}
       <option value="{{ c.id }}">{{ c.name }}</option>
     {% endfor %}
   </select><br><br>
 
-  Color:
-  <input type="text" name="color"><br><br>
-
   Occasion:
-  <select name="occasion">
+  <select name="occasion" required>
     {% for o in occasions %}
       <option value="{{ o.id }}">{{ o.name }}</option>
     {% endfor %}
   </select><br><br>
 
   Season:
-  <select name="season">
+  <select name="season" required>
     {% for s in seasons %}
       <option value="{{ s.id }}">{{ s.name }}</option>
     {% endfor %}
   </select><br><br>
 
   Image:
-<input type="file" name="image"><br><br>
-
+  <input type="file" name="image" accept="image/*" required><br><br>
 
   <button type="submit">Add</button>
 </form>

@@ -1,0 +1,67 @@
+<h2>My Orders</h2>
+
+<form method="get">
+    <label>Filter by Status:</label>
+    <select name="status" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="ordered" {% if selected_status == 'ordered' %}selected{% endif %}>
+            Ordered
+        </option>
+        <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>
+            Cancelled
+        </option>
+        <option value="shipped" {% if selected_status == 'shipped' %}selected{% endif %}>
+            Shipped
+        </option>
+        <option value="delivered" {% if selected_status == 'delivered' %}selected{% endif %}>
+            Delivered
+        </option>
+    </select>
+</form>
+
+<hr>
+
+
+{% if orders %}
+    {% for order in orders %}
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+            <p><b>Order ID:</b> {{ order.id }}</p>
+            <p><b>Date:</b> {{ order.order_date }}</p>
+            <p><b>Total:</b> ₹{{ order.total_amount }}</p>
+            <p><b>Status:</b> {{ order.status }}</p>
+            <p><b>Payment:</b> {{ order.get_payment_mode_display }}</p>
+            <p><b>Address:</b> {{ order.address }}</p>
+
+            <h4>Items</h4>
+            {% for item in order.items.all %}
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                    
+                    {% if item.accessory.image %}
+                        <img src="{{ item.accessory.image.url }}"
+                             alt="{{ item.accessory.name }}"
+                             width="80"
+                             height="80"
+                             style="object-fit:cover; border:1px solid #ccc;">
+                    {% endif %}
+
+                    <div>
+                        <p><b>{{ item.accessory.name }}</b></p>
+                        <p>Quantity: {{ item.quantity }}</p>
+                        <p>Price: ₹{{ item.price }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if order.status == 'ordered' %}
+                <a href="{% url 'cancel_order' order.id %}"
+                   onclick="return confirm('Are you sure you want to cancel this order?');">
+                    <button>Cancel Order</button>
+                </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No orders found.</p>
+{% endif %}
+
+<a href="{% url 'shop_accessories' %}">Continue Shopping</a>

@@ -1,9 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
-from .models import Accessory
+from .models import *
 from wardrobe.models import *
 from django.shortcuts import *
+from django.db.models import Q
+from . import views 
+from orders.models import OrderItem, Order
+
+
 
 
 
@@ -66,8 +71,24 @@ def edit_accessory(request, accessory_id):
 
 @role_required('supplier')
 def supplier_orders(request):
-    return render(request, 'supplier/orders.html')
+    items = OrderItem.objects.filter(
+        accessory__supplier=request.user
+    ).select_related('order', 'accessory')
 
+    return render(request, 'supplier/supplier_orders.html', {
+        'items': items
+    })
+
+
+@role_required('supplier')
+def mark_shipped(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.status == 'ordered':
+        order.status = 'shipped'
+        order.save()
+
+    return redirect('supplier_orders')
 
 @role_required('supplier')
 def add_accessories(request):

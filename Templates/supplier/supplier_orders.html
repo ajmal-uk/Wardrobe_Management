@@ -1,0 +1,23 @@
+<h2>Supplier Orders</h2>
+
+{% if items %}
+    {% for item in items %}
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+            <p><b>Order ID:</b> {{ item.order.id }}</p>
+            <p><b>Date:</b> {{ item.order.order_date }}</p>
+            <p><b>Status:</b> {{ item.order.status }}</p>
+            <p><b>Product:</b> {{ item.accessory.name }}</p>
+            <p><b>Quantity:</b> {{ item.quantity }}</p>
+            <p><b>Address:</b> {{ item.order.address }}</p>
+
+            {% if item.order.status == 'ordered' %}
+                <a href="{% url 'mark_shipped' item.order.id %}"
+                   onclick="return confirm('Mark this order as shipped?');">
+                    <button>Mark as Shipped</button>
+                </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No orders found.</p>
+{% endif %}

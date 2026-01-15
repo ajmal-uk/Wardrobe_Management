@@ -4,9 +4,22 @@
 
 <ul>
 {% for item in items %}
-  <li>
+  <li style="margin-bottom:15px;">
+    
+    {% if item.image %}
+      <img src="{{ item.image.url }}"
+           alt="Wardrobe Image"
+           width="100"
+           height="100"
+           style="object-fit:cover; border:1px solid #ccc; margin-right:10px;">
+    {% endif %}
+
     {{ item.item_type }} ({{ item.category }}) - {{ item.color }}
-    <a href="{% url 'delete_wardrobe' item.id %}">Delete</a>
+
+    <a href="{% url 'delete_wardrobe' item.id %}"
+       onclick="return confirm('Are you sure you want to delete this wardrobe item?');">
+        Delete
+    </a>
   </li>
 {% empty %}
   <li>No wardrobe items</li>

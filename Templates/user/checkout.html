@@ -10,5 +10,13 @@
     <label>Shipping Address</label><br>
     <textarea name="address" required></textarea><br><br>
 
+    <label>Payment Mode</label><br>
+    <select name="payment_mode" required>
+        <option value="">-- Select Payment Mode --</option>
+        <option value="cod">Cash on Delivery</option>
+        <option value="upi">UPI</option>
+        <option value="card">Card</option>
+    </select><br><br>
+
     <button type="submit">Place Order</button>
 </form>

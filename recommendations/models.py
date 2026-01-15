@@ -40,3 +40,5 @@ class AccessoryRecommendation(models.Model):
 
     def __str__(self):
         return f"{self.accessory} for outfit {self.outfit.id}"
+class Meta:
+    unique_together = ('user', 'top_item', 'bottom_item')

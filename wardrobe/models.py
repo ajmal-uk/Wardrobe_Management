@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import CustomUser
+from .utils import extract_dominant_color   # 🔹 IMPORT THE UTILITY
 
 
 class Occasion(models.Model):
@@ -31,11 +32,21 @@ class WardrobeItem(models.Model):
     occasion = models.ForeignKey(Occasion, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
-    color = models.CharField(max_length=50)
+    # 🔹 AUTO-DETECTED COLOR
+    color = models.CharField(max_length=50, null=True, blank=True)
+
     image = models.ImageField(upload_to='wardrobe/', null=True, blank=True)
 
     wear_count = models.PositiveIntegerField(default=0)
     clean_status = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # 🔹 Auto extract color from image
+        if self.image and not self.color:
+            self.color = extract_dominant_color(self.image.path)
+            super().save(update_fields=['color'])
 
     def mark_worn(self):
         self.wear_count += 1
