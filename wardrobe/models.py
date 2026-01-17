@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import CustomUser
-from .utils import extract_dominant_color   # 🔹 IMPORT THE UTILITY
+from .utils import extract_dominant_color
 
 
 class Occasion(models.Model):
@@ -32,26 +32,33 @@ class WardrobeItem(models.Model):
     occasion = models.ForeignKey(Occasion, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
-    # 🔹 AUTO-DETECTED COLOR
     color = models.CharField(max_length=50, null=True, blank=True)
-
     image = models.ImageField(upload_to='wardrobe/', null=True, blank=True)
 
     wear_count = models.PositiveIntegerField(default=0)
     clean_status = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         super().save(*args, **kwargs)
 
-        # 🔹 Auto extract color from image
-        if self.image and not self.color:
+        if self.image and (not self.color or is_new):
             self.color = extract_dominant_color(self.image.path)
             super().save(update_fields=['color'])
 
     def mark_worn(self):
         self.wear_count += 1
-        if self.wear_count >= 3:
+
+        category_name = self.category.name.strip().lower()
+
+        # TOP → dirty after 1 wear
+        if category_name == 'top' and self.wear_count >= 1:
             self.clean_status = False
+
+        # BOTTOM → dirty after 3 wears
+        elif category_name == 'bottom' and self.wear_count >= 3:
+            self.clean_status = False
+
         self.save()
 
     def __str__(self):

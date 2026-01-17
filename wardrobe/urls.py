@@ -11,6 +11,11 @@ urlpatterns = [
     path('view/', views.view_clothes, name='view_clothes'),
     path('wear/<int:item_id>/', views.mark_as_worn, name='mark_as_worn'),
     path('laundry/<int:item_id>/', views.send_to_laundry, name='send_to_laundry'),
+    path('laundry/', views.laundry_list, name='laundry_list'),
+    path('laundry/done/<int:item_id>/', views.send_to_laundry, name='send_to_laundry'),
+    path('laundry/clean/<int:item_id>/', views.mark_as_clean, name='mark_as_clean'),
+    path('laundry/send/<int:item_id>/', views.send_to_laundry, name='send_to_laundry'),
+
 ]
 
 if settings.DEBUG:

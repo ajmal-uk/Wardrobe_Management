@@ -14,8 +14,20 @@
            style="object-fit:cover; border:1px solid #ccc; margin-right:10px;">
     {% endif %}
 
-    {{ item.item_type }} ({{ item.category }}) - {{ item.color }}
+    <strong>{{ item.item_type }}</strong>
+    ({{ item.category }}) |
+    Color: {{ item.color }} |
+    Worn: {{ item.wear_count }} times |
+    Status:
+    {% if item.clean_status %}
+        Clean
+    {% else %}
+        Needs Laundry
+    {% endif %}
 
+    <br>
+
+    |
     <a href="{% url 'delete_wardrobe' item.id %}"
        onclick="return confirm('Are you sure you want to delete this wardrobe item?');">
         Delete

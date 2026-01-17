@@ -5,61 +5,47 @@ from .models import OutfitRecommendation, AccessoryRecommendation
 
 def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
     """
-    Logic-only fix:
-    - Do NOT create duplicates
-    - Update existing rows
-    - Keep ONE row per (top, bottom)
+    Final working logic:
+    - Case-insensitive category match
+    - No empty-string filtering
+    - No clean_status blocker
+    - No duplicate rows
     """
 
+    # 🔹 Base querysets
     tops = WardrobeItem.objects.filter(
         user=user,
-        category__name='Top',
-        clean_status=True
+        category__name__iexact='top'
     )
 
     bottoms = WardrobeItem.objects.filter(
         user=user,
-        category__name='Bottom',
-        clean_status=True
+        category__name__iexact='bottom'
     )
 
+    # 🔹 Safe filtering
     if occasion_id:
-        tops = tops.filter(occasion__id=occasion_id)
-        bottoms = bottoms.filter(occasion__id=occasion_id)
+        tops = tops.filter(occasion_id=occasion_id)
+        bottoms = bottoms.filter(occasion_id=occasion_id)
 
     if season_id:
-        tops = tops.filter(season__id=season_id)
-        bottoms = bottoms.filter(season__id=season_id)
+        tops = tops.filter(season_id=season_id)
+        bottoms = bottoms.filter(season_id=season_id)
 
+    # 🔹 Generate combinations
     for top in tops:
         for bottom in bottoms:
             score = calculate_match_score(top, bottom)
 
-            # 🔹 FIND EXISTING RECORD (IF ANY)
-            rec = (
-                OutfitRecommendation.objects
-                .filter(user=user, top_item=top, bottom_item=bottom)
-                .order_by('-match_score')
-                .first()
+            rec, created = OutfitRecommendation.objects.update_or_create(
+                user=user,
+                top_item=top,
+                bottom_item=bottom,
+                defaults={'match_score': score}
             )
 
-            if rec:
-                # Update score only if better
-                if score > rec.match_score:
-                    rec.match_score = score
-                    rec.save()
-            else:
-                rec = OutfitRecommendation.objects.create(
-                    user=user,
-                    top_item=top,
-                    bottom_item=bottom,
-                    match_score=score
-                )
-
-            # 🔹 Clear old accessories
+            # 🔹 Rebuild accessories
             rec.accessory_recommendations.all().delete()
-
-            # 🔹 Recompute accessories
             recommend_accessories(
                 outfit=rec,
                 top=top,
@@ -67,6 +53,7 @@ def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
                 occasion_id=occasion_id,
                 season_id=season_id
             )
+
 
 def calculate_match_score(top, bottom):
     score = 0.0
@@ -76,15 +63,14 @@ def calculate_match_score(top, bottom):
         if top.color.lower() == bottom.color.lower():
             score += 0.5
 
-    # Cleanliness
-    if top.clean_status and bottom.clean_status:
+    # Cleanliness (only if field exists and is True)
+    if getattr(top, 'clean_status', False) and getattr(bottom, 'clean_status', False):
         score += 0.3
 
-    # Base compatibility (Top + Bottom)
+    # Base compatibility
     score += 0.2
 
     return round(score, 2)
-
 
 
 def recommend_accessories(outfit, top, bottom, occasion_id=None, season_id=None):
@@ -93,33 +79,26 @@ def recommend_accessories(outfit, top, bottom, occasion_id=None, season_id=None)
         stock__gt=0
     )
 
-    if occasion_id:
-        accessories = accessories.filter(occasion__id=occasion_id)
-
-    if season_id:
-        accessories = accessories.filter(season__id=season_id)
-
     for accessory in accessories:
         score = 0.0
 
-        # Color match
-        if accessory.color and top.color and bottom.color:
-            if accessory.color.lower() in (
-                top.color.lower(),
-                bottom.color.lower()
-            ):
-                score += 0.5
+        # Color match (flexible)
+        if accessory.color:
+            if top.color and accessory.color.lower() in top.color.lower():
+                score += 0.4
+            if bottom.color and accessory.color.lower() in bottom.color.lower():
+                score += 0.4
 
-        # Occasion match
-        if occasion_id and accessory.occasion_id == occasion_id:
-            score += 0.25
+        # Occasion match (NULL-safe)
+        if occasion_id and (accessory.occasion_id == occasion_id or accessory.occasion_id is None):
+            score += 0.2
 
-        # Season match
-        if season_id and accessory.season_id == season_id:
-            score += 0.25
+        # Season match (NULL-safe)
+        if season_id and (accessory.season_id == season_id or accessory.season_id is None):
+            score += 0.2
 
-        # ✅ ONLY STRONG ACCESSORIES
-        if score >= 0.85:
+        # Practical threshold
+        if score >= 0.4:
             AccessoryRecommendation.objects.create(
                 outfit=outfit,
                 accessory=accessory,

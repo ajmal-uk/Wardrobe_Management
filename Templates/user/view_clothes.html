@@ -5,7 +5,13 @@
     <select name="category">
         <option value="">All</option>
         {% for c in categories %}
-            <option value="{{ c.id }}">{{ c.name }}</option>
+            <option value="{{ c.id }}"
+                {% if request.GET.category == c.id|stringformat:"s" %}
+                    selected
+                {% endif %}
+            >
+                {{ c.name }}
+            </option>
         {% endfor %}
     </select>
     <button type="submit">Filter</button>
@@ -23,7 +29,6 @@
     <b>{{ item.item_type }}</b><br>
     Category: {{ item.category.name }}<br>
     Color: {{ item.color }}<br>
-
     Wear Count: {{ item.wear_count }}<br>
 
     Status:
@@ -38,17 +43,20 @@
     <!-- MARK AS WORN -->
     {% if item.clean_status %}
         <a href="{% url 'mark_as_worn' item.id %}">
-            <button>Mark as Worn</button>
+            <button type="button">Mark as Worn</button>
         </a>
     {% else %}
-        <button disabled>Dirty</button>
+        <button type="button" disabled>Dirty</button>
     {% endif %}
 
     <!-- SEND TO LAUNDRY -->
-    {% if not item.clean_status %}
-        <a href="{% url 'send_to_laundry' item.id %}">
-            <button style="margin-left:10px;">Send to Laundry</button>
+    {% if item.clean_status %}
+        <a href="{% url 'send_to_laundry' item.id %}"
+           onclick="return confirm('Send this item to laundry?');">
+            <button type="button">Send to Laundry</button>
         </a>
+    {% else %}
+        <span style="color:gray;">(Already in Laundry)</span>
     {% endif %}
 
 </div>
