@@ -68,33 +68,8 @@
             <span style="color:red;">Poor</span>
         {% endif %}
     </p>
+    
 
-    <h4>Recommended Accessories</h4>
-
-    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-        {% for ar in rec.accessory_recommendations.all %}
-            <div style="border:1px solid #ddd; padding:10px; width:180px;">
-
-                {% if ar.accessory.image %}
-                    <img src="{{ ar.accessory.image.url }}" width="150" height="150" style="object-fit:cover;"><br>
-                {% endif %}
-
-                <strong>{{ ar.accessory.name }}</strong><br>
-                Category: {{ ar.accessory.category }}<br>
-                Price: ₹{{ ar.accessory.price }}
-
-                <form method="post" action="{% url 'place_order' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="accessory_id" value="{{ ar.accessory.id }}">
-                    <input type="number" name="quantity" value="1" min="1">
-                    <button type="submit">Buy</button>
-                </form>
-
-            </div>
-        {% empty %}
-            <p>No accessories available.</p>
-        {% endfor %}
-    </div>
 
 </div>
 {% empty %}

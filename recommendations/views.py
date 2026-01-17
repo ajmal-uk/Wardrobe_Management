@@ -59,3 +59,4 @@ def recommend_outfit(request):
         'occasions': Occasion.objects.all(),
         'seasons': Season.objects.all(),
     })
+
