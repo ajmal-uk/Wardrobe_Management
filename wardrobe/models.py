@@ -1,6 +1,9 @@
 from django.db import models
 from accounts.models import CustomUser
 from .utils import extract_dominant_color
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+import os
 
 
 class Occasion(models.Model):
@@ -51,11 +54,8 @@ class WardrobeItem(models.Model):
 
         category_name = self.category.name.strip().lower()
 
-        # TOP → dirty after 1 wear
         if category_name == 'top' and self.wear_count >= 1:
             self.clean_status = False
-
-        # BOTTOM → dirty after 3 wears
         elif category_name == 'bottom' and self.wear_count >= 3:
             self.clean_status = False
 
@@ -63,3 +63,10 @@ class WardrobeItem(models.Model):
 
     def __str__(self):
         return self.item_type
+
+
+@receiver(post_delete, sender=WardrobeItem)
+def delete_image_file(sender, instance, **kwargs):
+    if instance.image and instance.image.path:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
